@@ -1,3 +1,12 @@
+// aes sbox module
+// 
+// input:
+//  32bit word (each column of state matrix)
+// output:
+//  32 bit word (new column mapped by s - box)
+//
+// take 32 bit word and mapping it with s - box
+
 module aes_sbox(
     input wire [31 : 0] sboxw, // input must be word, 1 column of state matrix
     output wire [31 : 0] new_sboxw 

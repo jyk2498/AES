@@ -1,3 +1,18 @@
+// aes mixcolumn module
+// 
+// inputs
+//  statew1 : first word of state matrix
+//  statew2 : second word of state matrix
+//  statew3 : third word of state matrix
+//  statew4 : 4th word of state matrix
+// outputs
+//  shifted_statew1 : first word of translated first column
+//  shifted_statew2 : second word of translated second column
+//  shifted_statew3 : third word of translated third word
+//  shifted_statew4 : 4th word of translated 4th word
+// take state matrix by using 4 ports. each port take each column of state matrix
+// and convert it into new matrix(mixcolumn) and output using 4 ports. again each port deliver each column
+
 module Mixcolumn_module(
     input wire [31 : 0] statew1,
     input wire [31 : 0] statew2,
