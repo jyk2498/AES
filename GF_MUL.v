@@ -1,5 +1,5 @@
 //GF_Arithmetic
-
+//디시수장엄기용
 
 module GF_ADD_8bit
 (
