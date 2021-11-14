@@ -1,48 +1,18 @@
-//GF_Arithmetic
-
-
-module GF_ADD_8bit
-(
-    input [7:0] i_state_1,
-    input [7:0] i_state_2,
-    output [7:0] o_state
-);
-
-assign o_state[0] = i_state_1[0] ^ i_state_2[0];
-assign o_state[1] = i_state_1[1] ^ i_state_2[1];
-assign o_state[2] = i_state_1[2] ^ i_state_2[2];
-assign o_state[3] = i_state_1[3] ^ i_state_2[3];
-assign o_state[4] = i_state_1[4] ^ i_state_2[4];
-assign o_state[5] = i_state_1[5] ^ i_state_2[5];
-assign o_state[6] = i_state_1[6] ^ i_state_2[6];
-assign o_state[7] = i_state_1[7] ^ i_state_2[7];
-
-endmodule
-
-module GF_ADD_9bit
-(
-    input [8:0] i_state_1,
-    input [8:0] i_state_2,
-    output [8:0] o_state
-);
-
-assign o_state[0] = i_state_1[0] ^ i_state_2[0];
-assign o_state[1] = i_state_1[1] ^ i_state_2[1];
-assign o_state[2] = i_state_1[2] ^ i_state_2[2];
-assign o_state[3] = i_state_1[3] ^ i_state_2[3];
-assign o_state[4] = i_state_1[4] ^ i_state_2[4];
-assign o_state[5] = i_state_1[5] ^ i_state_2[5];
-assign o_state[6] = i_state_1[6] ^ i_state_2[6];
-assign o_state[7] = i_state_1[7] ^ i_state_2[7];
-assign o_state[8] = i_state_1[8] ^ i_state_2[8];
-
-endmodule
-
-
-
-
-
-module top_GF_Mul
+// Top_GF_Mul
+// input : 
+//      clk;
+// input : 
+//      en;
+// input :
+//      8bit_state_1;
+// input :
+//      8bit_state_2;
+// output :
+//      8bit_o_state;
+// output :
+//      o_done ( signal that that the output value 8bit_o_state is valid. )
+//             ( waveform : 1 Tickle )
+module Top_GF_Mul
 (
     input clk,
     input en,
@@ -51,7 +21,7 @@ module top_GF_Mul
     output [7:0] o_state,
     output o_done
 );
-//instant 0~7
+
 wire [7:0] o_state_0,o_state_1,o_state_2,o_state_3,o_state_4,o_state_5,o_state_6,o_state_7;
 wire out_done_0,out_done_1,out_done_2,out_done_3,out_done_4,out_done_5,out_done_6,out_done_7;
 GF_Mul u0(clk,en&&i_state_1[0],i_state_1[0],3'b000,i_state_2,o_state_0,out_done_0);
@@ -87,11 +57,25 @@ end
 assign cnt_done = en && (cnt == 3'b111);
 assign o_done = cnt_done;
 
-
 endmodule
 
 
-//GF_Mul
+// GF_Mul
+// input : 
+//      clk
+// input :
+//      en
+// input : 
+//      i_state_1_num ( coefficient of each state_1's degree )
+// input :
+//      [2:0] i_state_1_cnt ( each degree of state_1 )
+// input :
+//      [7:0] i_state_2 
+// output : 
+//      reg [7:0] o_state
+// output :
+//      out_done ( signal that that the output value 8bit_o_state is valid. )
+//               ( waveform : 1 Tickle )
 module GF_Mul
 (
     input clk,
@@ -147,8 +131,63 @@ wire w_b;
 GF_ADD_9bit u0 (9'b100011011,r_shift_i_state_2,A_shift_i_state_2);
 MUX u1 (r_shift_i_state_2,A_shift_i_state_2,r_shift_i_state_2[8],w_shift_i_state_2);
 MUX u2(w_shift_i_state_2,{1'b0,i_state_2},cnt==0,R_w_shift_i_state_2);
+
 endmodule
 
+
+// GF_ADDER_8bit
+// input :
+//      8bit state_1
+// input :
+//      8bit state_2
+// output : 
+//      8bit o_state
+module GF_ADD_8bit
+(
+    input [7:0] i_state_1,
+    input [7:0] i_state_2,
+    output [7:0] o_state
+);
+
+assign o_state[0] = i_state_1[0] ^ i_state_2[0];
+assign o_state[1] = i_state_1[1] ^ i_state_2[1];
+assign o_state[2] = i_state_1[2] ^ i_state_2[2];
+assign o_state[3] = i_state_1[3] ^ i_state_2[3];
+assign o_state[4] = i_state_1[4] ^ i_state_2[4];
+assign o_state[5] = i_state_1[5] ^ i_state_2[5];
+assign o_state[6] = i_state_1[6] ^ i_state_2[6];
+assign o_state[7] = i_state_1[7] ^ i_state_2[7];
+
+endmodule
+
+
+// GF_ADDER_9bit
+// input :
+//      9bit state_1
+// input :
+//      9bit state_2
+// output : 
+//      9bit o_state
+module GF_ADD_9bit
+(
+    input [8:0] i_state_1,
+    input [8:0] i_state_2,
+    output [8:0] o_state
+);
+
+assign o_state[0] = i_state_1[0] ^ i_state_2[0];
+assign o_state[1] = i_state_1[1] ^ i_state_2[1];
+assign o_state[2] = i_state_1[2] ^ i_state_2[2];
+assign o_state[3] = i_state_1[3] ^ i_state_2[3];
+assign o_state[4] = i_state_1[4] ^ i_state_2[4];
+assign o_state[5] = i_state_1[5] ^ i_state_2[5];
+assign o_state[6] = i_state_1[6] ^ i_state_2[6];
+assign o_state[7] = i_state_1[7] ^ i_state_2[7];
+assign o_state[8] = i_state_1[8] ^ i_state_2[8];
+
+endmodule
+
+// 9bit 2-to-1 MUX
 module MUX
 (
     input [8:0] a,
