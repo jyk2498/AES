@@ -1,12 +1,62 @@
-//Roundkey
+//Top_Roundkey
 module Top_Roundkey(
     input clk,
     input areset,
+    input [3:0] round_num,
     input en,
-    input [31:0] init_word_1,
-    input [31:0] init_word_2,
-    input [31:0] init_word_3,
-    input [31:0] init_word_4,
+    input [31:0] init_word_1,init_word_2,init_word_3,init_word_4,
+    output wire o_done,
+    output reg o_save_word_1,o_save_word_2,o_save_word_3,o_save_word_4
+);
+wire [31:0] i_word_1,i_word_2,i_word_3,i_word_4;
+wire add_done;
+wire [31:0] save_word_1,save_word_2,save_word_3,save_word_4;
+Mux u0 (init_word_1,init_word_2,init_word_3,init_word_4,save_word_1,save_word_2,save_word_3,save_word_4,round_num,i_word_1,i_word_2,i_word_3,i_word_4);
+Roundkey u1(clk,areset,en,i_word_1,i_word_2,i_word_3,i_word_4,round_num,add_done,save_word_1,save_word_2,save_word_3,save_word_4);
+
+reg r_done;
+always@(posedge clk or negedge areset) begin
+    if(!areset) begin
+        o_save_word_1 <= 0;
+        o_save_word_2 <= 0;
+        o_save_word_3 <= 0;
+        o_save_word_4 <= 0;
+        r_done <= 0;
+    end else if(add_done) begin
+        o_save_word_1 <= save_word_1;
+        o_save_word_2 <= save_word_2;
+        o_save_word_3 <= save_word_3;
+        o_save_word_4 <= save_word_4;
+        r_done <= 1;
+    end
+end
+
+reg c_r_done;
+always@(posedge clk or negedge areset) begin
+    if(!areset) begin
+        c_r_done <= 0;
+    end else if(r_done) begin
+        c_r_done <= 1;
+    end else begin
+        c_r_done <= 0;
+    end
+end
+
+assign o_done = en && (r_done == 1 && c_r_done == 0);
+
+
+
+endmodule
+
+//Roundkey
+module Roundkey(
+    input clk,
+    input areset,
+    input en,
+    input [31:0] i_word_1,
+    input [31:0] i_word_2,
+    input [31:0] i_word_3,
+    input [31:0] i_word_4,
     input [3:0] round_num,
     output o_done,
     output  [31:0] o_word_1,
@@ -61,11 +111,10 @@ always @(*) begin
         end
     endcase
 end
-wire [31:0] i_word_1,i_word_2,i_word_3,i_word_4;
+
 wire [31:0] save_word_1,save_word_2,save_word_3,save_word_4;
 wire [31:0] G_word;
 Shift u0 (i_word_4,Shift_word_4);
-Mux u1 (init_word_1,init_word_2,init_word_3,init_word_4,save_word_1,save_word_2,save_word_3,save_word_4,round_num,i_word_1,i_word_2,i_word_3,i_word_4);
 aes_sbox u2(Shift_word_4,s_box_word_4);
 Make_G u3(round_num,s_box_word_4,G_word);
 ADD u4(clk,areset,ADD_en,round_num,i_word_1,i_word_2,i_word_3,i_word_4,G_word,ADD_done,save_word_1,save_word_2,save_word_3,save_word_4);
@@ -170,7 +219,13 @@ always@(posedge clk or negedge areset) begin
         save_word_3 <= 32'b0;
         save_word_4 <= 32'b0;
         r_done <= 0;
-    end else if(en==1 && (round_num == 4'b0000)) begin
+    end else if(!en) begin
+        save_word_1 <= 32'b0;
+        save_word_2 <= 32'b0;
+        save_word_3 <= 32'b0;
+        save_word_4 <= 32'b0;
+        r_done <= 0;
+    end else if(round_num == 4'b0000) begin
         save_word_1 <= i_word_1;
         save_word_2 <= i_word_2;
         save_word_3 <= i_word_3;
