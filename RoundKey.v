@@ -2,17 +2,56 @@
 module Top_Roundkey(
     input clk,
     input areset,
-    input [3:0] round_num,
     input en,
-    input [31:0] init_word_1,init_word_2,init_word_3,init_word_4,
+    input wire [31:0] init_word_1,
+    input wire [31:0] init_word_2,
+    input wire [31:0] init_word_3,
+    input wire [31:0] init_word_4,
     output wire o_done,
-    output reg o_save_word_1,o_save_word_2,o_save_word_3,o_save_word_4
+    output reg [3:0] r_round_num,
+    output wire [31:0] w_save_word_1,
+    output wire [31:0] w_save_word_2,
+    output wire [31:0] w_save_word_3,
+    output wire [31:0] w_save_word_4
 );
 wire [31:0] i_word_1,i_word_2,i_word_3,i_word_4;
+reg [31:0] o_save_word_1,o_save_word_2,o_save_word_3,o_save_word_4;
 wire add_done;
+reg Round_en;
+reg [3:0] round_num;
 wire [31:0] save_word_1,save_word_2,save_word_3,save_word_4;
-Mux u0 (init_word_1,init_word_2,init_word_3,init_word_4,save_word_1,save_word_2,save_word_3,save_word_4,round_num,i_word_1,i_word_2,i_word_3,i_word_4);
-Roundkey u1(clk,areset,en,i_word_1,i_word_2,i_word_3,i_word_4,round_num,add_done,save_word_1,save_word_2,save_word_3,save_word_4);
+Mux u0 (init_word_1,init_word_2,init_word_3,init_word_4,o_save_word_1,o_save_word_2,o_save_word_3,o_save_word_4,round_num,i_word_1,i_word_2,i_word_3,i_word_4);
+Roundkey u1(clk,areset,Round_en,i_word_1,i_word_2,i_word_3,i_word_4,round_num,add_done,save_word_1,save_word_2,save_word_3,save_word_4);
+
+// internal counter for round_num
+always @(posedge clk or negedge areset) begin
+    if(!areset) begin
+        round_num <= 0;
+        Round_en <= 0;
+    end else if(!en) begin
+        round_num <= 0;
+        Round_en <= 0;
+    end else if(!add_done) begin
+        Round_en <= 1;
+    end else if(round_num < 4'b1010) begin
+        round_num <= round_num +1;
+        Round_en <= 1;
+    end else begin
+        Round_en <= 0; 
+    end
+end
+
+
+always @(posedge clk or negedge areset) begin
+    if(!areset) begin
+        r_round_num <= 0;
+    end else if(add_done) begin
+    r_round_num <= round_num;
+    end
+end
+
+
+
 
 reg r_done;
 always@(posedge clk or negedge areset) begin
@@ -28,6 +67,8 @@ always@(posedge clk or negedge areset) begin
         o_save_word_3 <= save_word_3;
         o_save_word_4 <= save_word_4;
         r_done <= 1;
+    end else begin
+        r_done <= 0;
     end
 end
 
@@ -43,7 +84,10 @@ always@(posedge clk or negedge areset) begin
 end
 
 assign o_done = en && (r_done == 1 && c_r_done == 0);
-
+assign w_save_word_1 = o_save_word_1;
+assign w_save_word_2 = o_save_word_2;
+assign w_save_word_3 = o_save_word_3;
+assign w_save_word_4 = o_save_word_4;
 
 
 endmodule
@@ -90,10 +134,16 @@ always @(*) begin
     case(c_state)
     IDLE : if(en == 1'b1) begin
             n_state = ADD;
+            end else begin
+            n_state = IDLE;
             end
     ADD : if(ADD_done == 1) begin
                 n_state = IDLE; 
-                end
+          end else begin
+                n_state = ADD;
+          end
+        
+    default : n_state = IDLE;
     endcase
 end
 
@@ -109,6 +159,7 @@ always @(*) begin
     ADD : begin
             ADD_en = 1;
         end
+    default : begin ADD_en = 0; end
     endcase
 end
 
@@ -178,6 +229,7 @@ module Make_G(
 reg [31:0] RC;
 always@(*) begin
     case(round_num)
+    4'b0000 : RC = 8'h00;
     4'b0001 : RC = 8'h01;
     4'b0010 : RC = 8'h02;
     4'b0011 : RC = 8'h04;
@@ -188,6 +240,7 @@ always@(*) begin
     4'b1000 : RC = 8'h80;
     4'b1001 : RC = 8'h1B;
     4'b1010 : RC = 8'h36;
+    default : RC = 8'h00;
     endcase
 end
 
@@ -205,10 +258,16 @@ module ADD(
     input areset,
     input en,
     input [3:0] round_num,
-    input [31:0] i_word_1,i_word_2,i_word_3,i_word_4,
+    input [31:0] i_word_1,
+    input [31:0] i_word_2,
+    input [31:0] i_word_3,
+    input [31:0] i_word_4,
     input [31:0] G_word,
     output wire o_done,
-    output reg [31:0] save_word_1,save_word_2,save_word_3,save_word_4
+    output reg [31:0] save_word_1,
+    output reg [31:0] save_word_2,
+    output reg [31:0] save_word_3,
+    output reg [31:0] save_word_4
 );
 
 reg r_done;
@@ -255,6 +314,80 @@ assign o_done = en && (r_done == 1 && c_r_done == 0);
 endmodule
 
 
+//key_momery
+module key_momery(
+    input clk,
+    input areset,
+    input [3:0] r_round_num,
+    input [31:0] o_save_word_1,
+    input [31:0] o_save_word_2,
+    input [31:0] o_save_word_3,
+    input [31:0] o_save_word_4,
+    input o_done,
+    input [3:0] read_round_num,
+    input read_en,
+    output wire [31:0] Round_key_w_1,
+    output wire [31:0] Round_key_w_2,
+    output wire [31:0] Round_key_w_3,
+    output wire [31:0] Round_key_w_4,
+    output wire vaild
+);
+
+reg [43:0] key_memory [31:0];
+always@(posedge clk or negedge areset) begin
+    if(!areset) begin
+        key_memory[0] <= 32'b0;
+        key_memory[1] <= 32'b0;
+        key_memory[2] <= 32'b0;
+        key_memory[3] <= 32'b0;
+        key_memory[4] <= 32'b0;
+        key_memory[5] <= 32'b0;
+        key_memory[6] <= 32'b0;
+        key_memory[7] <= 32'b0;
+        key_memory[8] <= 32'b0;
+        key_memory[9] <= 32'b0;
+        key_memory[10] <= 32'b0;
+        key_memory[11] <= 32'b0;
+        key_memory[12] <= 32'b0;
+        key_memory[13] <= 32'b0;
+        key_memory[14] <= 32'b0;
+        key_memory[15] <= 32'b0;
+        key_memory[16] <= 32'b0;
+        key_memory[17] <= 32'b0;
+        key_memory[18] <= 32'b0;
+        key_memory[19] <= 32'b0;
+        key_memory[20] <= 32'b0;
+        key_memory[21] <= 32'b0;
+        key_memory[22] <= 32'b0;
+        key_memory[23] <= 32'b0;
+        key_memory[24] <= 32'b0;
+        key_memory[25] <= 32'b0;
+        key_memory[26] <= 32'b0;
+        key_memory[27] <= 32'b0;
+        key_memory[28] <= 32'b0;
+        key_memory[29] <= 32'b0;
+        key_memory[30] <= 32'b0;
+        key_memory[31] <= 32'b0;
+        key_memory[32] <= 32'b0;
+        key_memory[33] <= 32'b0;
+        key_memory[34] <= 32'b0;
+        key_memory[35] <= 32'b0;
+        key_memory[36] <= 32'b0;
+        key_memory[37] <= 32'b0;
+        key_memory[38] <= 32'b0;
+        key_memory[39] <= 32'b0;
+        key_memory[40] <= 32'b0;
+        key_memory[41] <= 32'b0;
+        key_memory[42] <= 32'b0;
+        key_memory[43] <= 32'b0;
+    end else if(o_done) begin
+        if(r_round_num == 4'b0000) begin
+        
+        end
+    end
+end
+
+endmodule
 
 
 //S_box
