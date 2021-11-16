@@ -382,7 +382,15 @@ always@(posedge clk or negedge areset) begin
         key_memory[43] <= 32'b0;
     end else if(o_done) begin
         if(r_round_num == 4'b0000) begin
-        
+            key_memory[0] <= w_save_word_1;
+            key_memory[1] <= w_save_word_2;
+            key_memory[2] <= w_save_word_3;
+            key_memory[3] <= w_save_word_4;
+        end else if(r_round_num == 4'b0001) begin
+            key_memory[4] <= w_save_word_1;
+            key_memory[5] <= w_save_word_2;
+            key_memory[6] <= w_save_word_3;
+            key_memory[7] <= w_save_word_4;
         end
     end
 end
