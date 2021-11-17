@@ -19,7 +19,7 @@ wire [3:0] r_round_num;
 wire o_done;
 wire [31:0] w_save_word_1,w_save_word_2,w_save_word_3,w_save_word_4;
 Top_Roundkey u0(clk,areset,en,init_word_1,init_word_2,init_word_3,init_word_4,o_done,r_round_num,w_save_word_1,w_save_word_2,w_save_word_3,w_save_word_4);
-key_momery u1(clk,areset,r_round_num,w_save_word_1,w_save_word_2,w_save_word_3,w_save_word_4,o_done,read_round_num,read_en,Round_key_w_1,Round_key_w_2,Round_key_w_3,Round_key_w_4,vaild);
+key_momery u1(clk,areset,r_round_num,w_save_word_1,w_save_word_2,w_save_word_3,w_save_word_4,o_done,read_round_number,read_en,Round_key_w_1,Round_key_w_2,Round_key_w_3,Round_key_w_4,vaild);
 endmodule
 
 
@@ -359,7 +359,7 @@ module key_momery(
     output wire vaild
 );
 
-reg [43:0] key_memory [31:0];
+reg [31:0] key_memory [0:43];
 reg vaild_0,vaild_1,vaild_2,vaild_3,vaild_4,vaild_5,vaild_6,vaild_7,vaild_8,vaild_9,vaild_10;
 always@(posedge clk or negedge areset) begin
     if(!areset) begin
