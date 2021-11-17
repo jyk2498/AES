@@ -13,6 +13,6 @@ module GF_adder(
     output wire [7 : 0] GFadd_result
 );
 
-    assign gfadd_result = poly1 ^ poly2;
-
+    assign GFadd_result = poly1 ^ poly2;
 endmodule
+

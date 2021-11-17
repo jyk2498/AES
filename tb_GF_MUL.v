@@ -26,5 +26,7 @@ module tb_GF_MUL();
 
     initial begin
         #20 en <= 1'b1; num1 <= 8'b00100110; num2 <= 8'b10011110;
+        #160 num1 <= 8'b00001111; num2 <= 8'b00010101;
+        #160 num1 <= 8'b00000001; num2 <= 8'b00000011;
     end
 endmodule
