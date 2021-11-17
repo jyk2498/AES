@@ -44,8 +44,9 @@ module Mixcolumn_module(
 
     wire [7 : 0] add_result1, add_result2, add_result3; // wire for adder IO
 
-    reg [3 : 0] count;
-    wire four_mul_finish;
+    reg [3 : 0] count; // for main counter 0 ~ 15
+    reg prolong_en_count; // prolong enable signal 1 clk
+    wire four_mul_finish; // checking 4 Multiplier all finish the calculation
 
     // Creating mixcolumn_constant matrix
     assign mixcolumn_constant[0] = 8'b00000010; // 2
@@ -135,8 +136,14 @@ module Mixcolumn_module(
     always@(posedge clk) begin
         if(!start) begin
             {en1, en2, en3, en4} <= 4'b0000;
+            prolong_en_count <= 1'b0;
         end else begin
-            {en1, en2, en3, en4} <= 4'b1111;
+            if(prolong_en_count == 1'b1) begin
+                {en1, en2, en3, en4} <= 4'b1111;
+            end else begin
+                {en1, en2, en3, en4} <= 4'b0000;
+                prolong_en_count <= ~prolong_en_count;
+            end
         end
     end
 
@@ -194,7 +201,7 @@ module Mixcolumn_module(
                 {num2_e1, num2_e2, num2_e3, num2_e4} <= {statew4[31 : 24], statew4[23 : 16], statew4[15 : 8], statew4[7 : 0]}; // making A44
             end
         end
-    end // 테스트벤치로 en(reset) 신호 켰다가 끄지 않고 1 로 유지한 채로 done 신호 나올 때마다 피연산자 바꾸면 제대로된 곱셈 결과 나오는지 check 요망됨
+    end 
 
     assign four_mul_finish = (mul_temp_done_1 && mul_temp_done_2 && mul_temp_done_3 && mul_temp_done_4);
  
