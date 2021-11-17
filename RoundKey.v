@@ -1,4 +1,28 @@
 //Top_Roundkey
+module Top_RoundKey_and_Memory(
+    input clk,
+    input areset,
+    input en,
+    input wire [31:0] init_word_1,
+    input wire [31:0] init_word_2,
+    input wire [31:0] init_word_3,
+    input wire [31:0] init_word_4,
+    input [3:0] read_round_number,
+    input read_en,
+    output wire [31:0] Round_key_w_1,
+    output wire [31:0] Round_key_w_2,
+    output wire [31:0] Round_key_w_3,
+    output wire [31:0] Round_key_w_4,
+    output wire vaild    
+);
+wire [3:0] r_round_num;
+wire o_done;
+wire [31:0] w_save_word_1,w_save_word_2,w_save_word_3,w_save_word_4;
+Top_Roundkey u0(clk,areset,en,init_word_1,init_word_2,init_word_3,init_word_4,o_done,r_round_num,w_save_word_1,w_save_word_2,w_save_word_3,w_save_word_4);
+key_momery u1(clk,areset,r_round_num,w_save_word_1,w_save_word_2,w_save_word_3,w_save_word_4,o_done,read_round_num,read_en,Round_key_w_1,Round_key_w_2,Round_key_w_3,Round_key_w_4,vaild);
+endmodule
+
+
 module Top_Roundkey(
     input clk,
     input areset,
@@ -33,7 +57,7 @@ always @(posedge clk or negedge areset) begin
         Round_en <= 0;
     end else if(!add_done) begin
         Round_en <= 1;
-    end else if(round_num < 4'b1010) begin
+    end else if(round_num <= 4'b1010) begin
         round_num <= round_num +1;
         Round_en <= 1;
     end else begin
@@ -284,6 +308,8 @@ always@(posedge clk or negedge areset) begin
         save_word_3 <= 32'b0;
         save_word_4 <= 32'b0;
         r_done <= 0;
+    end else if(round_num > 4'b1010) begin
+        r_done <= 0;    
     end else if(round_num == 4'b0000) begin
         save_word_1 <= i_word_1;
         save_word_2 <= i_word_2;
@@ -319,21 +345,22 @@ module key_momery(
     input clk,
     input areset,
     input [3:0] r_round_num,
-    input [31:0] o_save_word_1,
-    input [31:0] o_save_word_2,
-    input [31:0] o_save_word_3,
-    input [31:0] o_save_word_4,
+    input [31:0] w_save_word_1,
+    input [31:0] w_save_word_2,
+    input [31:0] w_save_word_3,
+    input [31:0] w_save_word_4,
     input o_done,
     input [3:0] read_round_num,
     input read_en,
-    output wire [31:0] Round_key_w_1,
-    output wire [31:0] Round_key_w_2,
-    output wire [31:0] Round_key_w_3,
-    output wire [31:0] Round_key_w_4,
+    output reg [31:0] Round_key_w_1,
+    output reg [31:0] Round_key_w_2,
+    output reg [31:0] Round_key_w_3,
+    output reg [31:0] Round_key_w_4,
     output wire vaild
 );
 
 reg [43:0] key_memory [31:0];
+reg vaild_0,vaild_1,vaild_2,vaild_3,vaild_4,vaild_5,vaild_6,vaild_7,vaild_8,vaild_9,vaild_10;
 always@(posedge clk or negedge areset) begin
     if(!areset) begin
         key_memory[0] <= 32'b0;
@@ -380,24 +407,226 @@ always@(posedge clk or negedge areset) begin
         key_memory[41] <= 32'b0;
         key_memory[42] <= 32'b0;
         key_memory[43] <= 32'b0;
+        vaild_0 <= 0;
+        vaild_1 <= 0;
+        vaild_2 <= 0;
+        vaild_3 <= 0;
+        vaild_4 <= 0;
+        vaild_5 <= 0;
+        vaild_6 <= 0;
+        vaild_7 <= 0;
+        vaild_8 <= 0;
+        vaild_9 <= 0;
+        vaild_10 <= 0;
     end else if(o_done) begin
         if(r_round_num == 4'b0000) begin
             key_memory[0] <= w_save_word_1;
             key_memory[1] <= w_save_word_2;
             key_memory[2] <= w_save_word_3;
             key_memory[3] <= w_save_word_4;
+            vaild_0 <= 1;
         end else if(r_round_num == 4'b0001) begin
             key_memory[4] <= w_save_word_1;
             key_memory[5] <= w_save_word_2;
             key_memory[6] <= w_save_word_3;
             key_memory[7] <= w_save_word_4;
+            vaild_1 <= 1;
+        end else if(r_round_num == 4'b0010) begin
+            key_memory[8] <= w_save_word_1;
+            key_memory[9] <= w_save_word_2;
+            key_memory[10] <= w_save_word_3;
+            key_memory[11] <= w_save_word_4;
+            vaild_2 <= 1;
+        end else if(r_round_num == 4'b0011) begin
+            key_memory[12] <= w_save_word_1;
+            key_memory[13] <= w_save_word_2;
+            key_memory[14] <= w_save_word_3;
+            key_memory[15] <= w_save_word_4;
+            vaild_3 <= 1;
+        end else if(r_round_num == 4'b0100) begin
+            key_memory[16] <= w_save_word_1;
+            key_memory[17] <= w_save_word_2;
+            key_memory[18] <= w_save_word_3;
+            key_memory[19] <= w_save_word_4;
+            vaild_4 <= 1;
+        end else if(r_round_num == 4'b0101) begin
+            key_memory[20] <= w_save_word_1;
+            key_memory[21] <= w_save_word_2;
+            key_memory[22] <= w_save_word_3;
+            key_memory[23] <= w_save_word_4;
+            vaild_5 <= 1;
+        end else if(r_round_num == 4'b0110) begin
+            key_memory[24] <= w_save_word_1;
+            key_memory[25] <= w_save_word_2;
+            key_memory[26] <= w_save_word_3;
+            key_memory[27] <= w_save_word_4;
+            vaild_6 <= 1;
+        end else if(r_round_num == 4'b0111) begin
+            key_memory[28] <= w_save_word_1;
+            key_memory[29] <= w_save_word_2;
+            key_memory[30] <= w_save_word_3;
+            key_memory[31] <= w_save_word_4;
+            vaild_7 <= 1;
+        end else if(r_round_num == 4'b1000) begin
+            key_memory[32] <= w_save_word_1;
+            key_memory[33] <= w_save_word_2;
+            key_memory[34] <= w_save_word_3;
+            key_memory[35] <= w_save_word_4;
+            vaild_8 <= 1;
+        end else if(r_round_num == 4'b1001) begin
+            key_memory[36] <= w_save_word_1;
+            key_memory[37] <= w_save_word_2;
+            key_memory[38] <= w_save_word_3;
+            key_memory[39] <= w_save_word_4;
+            vaild_9 <= 1;
+        end else if(r_round_num == 4'b1010) begin
+            key_memory[40] <= w_save_word_1;
+            key_memory[41] <= w_save_word_2;
+            key_memory[42] <= w_save_word_3;
+            key_memory[43] <= w_save_word_4;
+            vaild_10 <= 1;
+        end
+    end
+end
+reg r_vaild;
+always @ (posedge clk or negedge areset) begin
+    if(!areset) begin
+        Round_key_w_1 <= 0;
+        Round_key_w_2 <= 0;
+        Round_key_w_3 <= 0;
+        Round_key_w_4 <= 0;
+        r_vaild <= 0;
+    end else if(!read_en) begin
+        Round_key_w_1 <= 0;
+        Round_key_w_2 <= 0;
+        Round_key_w_3 <= 0;
+        Round_key_w_4 <= 0;
+        r_vaild <= 0;
+    end else if(read_round_num == 4'b0000) begin
+        if(vaild_0 == 1) begin
+            Round_key_w_1 <= key_memory[0];
+            Round_key_w_2 <= key_memory[1];
+            Round_key_w_3 <= key_memory[2];
+            Round_key_w_4 <= key_memory[3];
+            r_vaild <= 1;
+        end else begin
+            r_vaild <= 0;
+        end
+    end else if(read_round_num == 4'b0001) begin
+        if(vaild_1 == 1) begin
+            Round_key_w_1 <= key_memory[4];
+            Round_key_w_2 <= key_memory[5];
+            Round_key_w_3 <= key_memory[6];
+            Round_key_w_4 <= key_memory[7];
+            r_vaild <= 1;
+        end else begin
+            r_vaild <= 0;
+        end
+    end else if(read_round_num == 4'b0010) begin
+        if(vaild_2 == 1) begin
+            Round_key_w_1 <= key_memory[8];
+            Round_key_w_2 <= key_memory[9];
+            Round_key_w_3 <= key_memory[10];
+            Round_key_w_4 <= key_memory[11];
+            r_vaild <= 1;
+        end else begin
+            r_vaild <= 0;
+        end
+    end else if(read_round_num == 4'b0011) begin
+        if(vaild_3 == 1) begin
+            Round_key_w_1 <= key_memory[12];
+            Round_key_w_2 <= key_memory[13];
+            Round_key_w_3 <= key_memory[14];
+            Round_key_w_4 <= key_memory[15];
+            r_vaild <= 1;
+        end else begin
+            r_vaild <= 0;
+        end
+    end else if(read_round_num == 4'b0100) begin
+        if(vaild_4 == 1) begin
+            Round_key_w_1 <= key_memory[16];
+            Round_key_w_2 <= key_memory[17];
+            Round_key_w_3 <= key_memory[18];
+            Round_key_w_4 <= key_memory[19];
+            r_vaild <= 1;
+        end else begin
+            r_vaild <= 0;
+        end
+    end else if(read_round_num == 4'b0101) begin
+        if(vaild_5 == 1) begin
+            Round_key_w_1 <= key_memory[20];
+            Round_key_w_2 <= key_memory[21];
+            Round_key_w_3 <= key_memory[22];
+            Round_key_w_4 <= key_memory[23];
+            r_vaild <= 1;
+        end else begin
+            r_vaild <= 0;
+        end
+    end else if(read_round_num == 4'b0110) begin
+        if(vaild_6 == 1) begin
+            Round_key_w_1 <= key_memory[24];
+            Round_key_w_2 <= key_memory[25];
+            Round_key_w_3 <= key_memory[26];
+            Round_key_w_4 <= key_memory[27];
+            r_vaild <= 1;
+        end else begin
+            r_vaild <= 0;
+        end
+    end else if(read_round_num == 4'b0111) begin
+        if(vaild_7 == 1) begin
+            Round_key_w_1 <= key_memory[28];
+            Round_key_w_2 <= key_memory[29];
+            Round_key_w_3 <= key_memory[30];
+            Round_key_w_4 <= key_memory[31];
+            r_vaild <= 1;
+        end else begin
+            r_vaild <= 0;
+        end
+    end else if(read_round_num == 4'b1000) begin
+        if(vaild_8 == 1) begin
+            Round_key_w_1 <= key_memory[32];
+            Round_key_w_2 <= key_memory[33];
+            Round_key_w_3 <= key_memory[34];
+            Round_key_w_4 <= key_memory[35];
+            r_vaild <= 1;
+        end else begin
+            r_vaild <= 0;
+        end
+    end else if(read_round_num == 4'b1001) begin
+        if(vaild_9 == 1) begin
+            Round_key_w_1 <= key_memory[36];
+            Round_key_w_2 <= key_memory[37];
+            Round_key_w_3 <= key_memory[38];
+            Round_key_w_4 <= key_memory[39];
+            r_vaild <= 1;
+        end else begin
+            r_vaild <= 0;
+        end
+    end else if(read_round_num == 4'b1010) begin
+        if(vaild_10 == 1) begin
+            Round_key_w_1 <= key_memory[40];
+            Round_key_w_2 <= key_memory[41];
+            Round_key_w_3 <= key_memory[42];
+            Round_key_w_4 <= key_memory[43];
+            r_vaild <= 1;
+        end else begin
+            r_vaild <= 0;
         end
     end
 end
 
+reg c_r_vaild;
+always @(posedge clk or posedge areset) begin
+    if(!areset) begin
+        c_r_vaild <= 0;
+    end else if(!r_vaild) begin
+        c_r_vaild <= 0;
+    end else begin
+        c_r_vaild <= 1;
+    end
+end
+assign vaild = read_en && (r_vaild == 1 && c_r_vaild == 0);
 endmodule
-
-
 //S_box
 module aes_sbox(
     input wire [31 : 0] sboxw, // input must be word, 1 column of state matrix
