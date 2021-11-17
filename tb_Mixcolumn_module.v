@@ -26,17 +26,17 @@ module tb_Mixcolumn();
     initial begin
         clk <= 1'b1;
         start <= 1'b0;
-        statew1 <= 8'b00000000;
-        statew2 <= 8'b00000000;
-        statew3 <= 8'b00000000;
-        statew4 <= 8'b00000000;
+        statew1 <= 32'h00000000;
+        statew2 <= 32'h00000000;
+        statew3 <= 32'h00000000;
+        statew4 <= 32'b00000000;
     end
 
     always #10 clk <= ~clk;
 
     initial begin
         #20 statew1 <= 32'h00000001; statew2 <= 32'h00000001; statew3 <= 32'h00000001; statew4 <= 8'b00000001;
-        #20 start <= 1'b1;
+        #10 start <= 1'b1;
         #15000 start <= 1'b0;
     end
 endmodule
