@@ -1,0 +1,26 @@
+module tb_Top_RoundKey_and_Memory();
+    reg clk;
+    reg areset;
+    reg en;
+    reg [31:0] init_word_1;
+    reg [31:0] init_word_2;
+    reg [31:0] init_word_3;
+    reg [31:0] init_word_4;
+    reg [3:0] read_round_number;
+    reg read_en;
+    wire [31:0] Round_key_w_1;
+    wire [31:0] Round_key_w_2;
+    wire [31:0] Round_key_w_3;
+    wire [31:0] Round_key_w_4;
+    wire vaild; 
+Top_RoundKey_and_Memory u0(clk,areset,en,init_word_1,init_word_2,init_word_3,init_word_4,read_round_number,read_en,Round_key_w_1,Round_key_w_2,Round_key_w_3,Round_key_w_4,vaild);
+initial clk = 0; always #5 clk = ~clk;
+initial begin
+#0 areset = 0; en = 0; init_word_1 = 0;init_word_2 = 0;init_word_3 = 0;init_word_4 = 0; read_en = 0; read_round_number = 0;
+#10 areset = 1; en = 1; init_word_1 = 32'h1111_1111;init_word_2 = 0;init_word_3 = 0;init_word_4 = 32'h1111_1010; read_en = 0; read_round_number = 0;
+#200 areset = 1; en = 1; init_word_1 = 0;init_word_2 = 0;init_word_3 = 0;init_word_4 = 0; read_en = 1; read_round_number = 0;
+#10 areset = 1; en = 1; init_word_1 = 0;init_word_2 = 0;init_word_3 = 0;init_word_4 = 0; read_en = 1; read_round_number = 0;
+#10 areset = 1; en = 1; init_word_1 = 0;init_word_2 = 0;init_word_3 = 0;init_word_4 = 0; read_en = 0; read_round_number = 0;
+#10 areset = 1; en = 1; init_word_1 = 0;init_word_2 = 0;init_word_3 = 0;init_word_4 = 0; read_en = 1; read_round_number = 4'b1010;
+end   
+endmodule
