@@ -1,4 +1,10 @@
-//Top_Roundkey
+// Top_Roundkey_and_Memory
+// This module makes roundkeys when signal 'en' is input.
+// It takes almost 36 clk to make pre-to-ten roundkey.
+// When the round number value and read enable value are input, the corresponding round key 
+// and the valid signal confirming whether the value is valid are output simultaneously.  
+// Note : If you use the roundkey value, set the en signal to 0.
+//
 module Top_RoundKey_and_Memory(
     input clk,
     input areset,
@@ -22,7 +28,7 @@ Top_Roundkey u0(clk,areset,en,init_word_1,init_word_2,init_word_3,init_word_4,o_
 key_momery u1(clk,areset,r_round_num,w_save_word_1,w_save_word_2,w_save_word_3,w_save_word_4,o_done,read_round_number,read_en,Round_key_w_1,Round_key_w_2,Round_key_w_3,Round_key_w_4,vaild);
 endmodule
 
-
+// Top_Roundkey
 module Top_Roundkey(
     input clk,
     input areset,
@@ -65,7 +71,6 @@ always @(posedge clk or negedge areset) begin
     end
 end
 
-
 always @(posedge clk or negedge areset) begin
     if(!areset) begin
         r_round_num <= 0;
@@ -73,9 +78,6 @@ always @(posedge clk or negedge areset) begin
     r_round_num <= round_num;
     end
 end
-
-
-
 
 reg r_done;
 always@(posedge clk or negedge areset) begin
@@ -133,11 +135,7 @@ module Roundkey(
     output  [31:0] o_word_4
 );
 parameter IDLE = 2'b00;
-//parameter Shift = 4'b0001;
-//parameter S_box = 4'b0010;
-//parameter Make_G = 2'b01;
 parameter ADD = 2'b01;
-
 
 reg [1:0] c_state;
 reg [1:0] n_state;
@@ -151,7 +149,6 @@ always @(posedge clk or negedge areset) begin
         c_state <= n_state;
     end
 end
-
 
 always @(*) begin
     //n_state = IDLE;
@@ -200,7 +197,7 @@ assign o_word_4 = save_word_4;
 assign o_done = ADD_done;
 endmodule
 
-//Shift ( Combination)
+//Shift ( Combination )
 module Shift(
     input [31:0] i_word_4,
     output reg [31:0] Shift_word_4
